@@ -1,0 +1,109 @@
+package BankingApplication;
+
+import java.io.*;
+import java.util.*;
+
+public class BankOperationManager {
+    public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        Scanner scannerName = new Scanner(System.in);
+        System.out.println("Enter your last name :");
+        String clientName = scannerName.nextLine();
+        File file=null;
+        try {
+            file = new File("C:\\Sergey\\Java\\Projects\\Bank\\" + clientName + ".txt");
+            scannerName = new Scanner(file);
+        }catch (FileNotFoundException e){
+             System.out.println("Invalid name");
+         }
+
+        int customerBalance = scannerName.nextInt();
+        Balance bnkBalance = new Balance();
+        Deposit deposit = new Deposit();
+        PreviousTransaction prevTrans = new PreviousTransaction();
+        Withdraw withdraw = new Withdraw();
+        boolean notExit = true;
+        int clientChoice =0;
+        int qtyWithdrawn =0;
+        int qtyDeposited =0;
+
+        bnkBalance.setBalance(customerBalance);
+        int newBalance = bnkBalance.getBalance();
+
+
+
+        while (notExit) {
+            System.out.println("\t ## Welcome to our bank, mr."+clientName+". ##\n\nWhat would you like to do today? \n" +
+                    "1. Check the balance.\n2. Check the previous transaction.\n" +
+                    "3. Withdraw.\n4. Deposit.\n5. Exit.");
+            clientChoice = Integer.parseInt(reader.readLine());
+            if (clientChoice == 1) {
+                System.out.println("===============================");
+                System.out.println("Your balance : " + newBalance);
+                System.out.println("===============================");
+            }
+            else if (clientChoice == 3) {
+                System.out.println("How much would you like to withdraw?");
+                qtyWithdrawn = Integer.parseInt(reader.readLine());
+                while(qtyWithdrawn>newBalance) {
+                    System.out.println("You don't have enough money\nYour balance : " + newBalance);
+                    System.out.println("===============================");
+                    System.out.println("How much would you like to withdraw?");
+                    qtyWithdrawn = Integer.parseInt(reader.readLine());
+                }
+                    withdraw.moneyWithdrawn(qtyWithdrawn);
+                    newBalance = newBalance - qtyWithdrawn;
+                    qtyDeposited = 0;
+                    System.out.println("===============================");
+                    System.out.println("Your balance : " + newBalance);
+                    System.out.println("===============================");
+                try {
+                    PrintWriter pw = new PrintWriter(file);
+                    pw.print(newBalance);
+                    pw.close();
+                } catch (FileNotFoundException e) {
+                    //       e.printStackTrace();
+                }
+
+
+
+            }
+            else if (clientChoice == 4){
+                System.out.println("How much would you like to deposit?");
+                qtyDeposited = Integer.parseInt(reader.readLine());
+                deposit.depositMoney(qtyDeposited);
+                newBalance = newBalance + qtyDeposited;
+                qtyWithdrawn = 0;
+                System.out.println("Your balance : " + newBalance);
+                System.out.println("===============================");
+                try {
+                    PrintWriter pw = new PrintWriter(file);
+                    pw.print(newBalance);
+                    pw.close();
+                } catch (FileNotFoundException e) {
+                    //       e.printStackTrace();
+                }
+            }
+            else if (clientChoice == 2) {
+                if (qtyDeposited > 0) {
+                    System.out.println("===============================");
+                    System.out.print("Last transaction :\nYou deposited : ");
+                    prevTrans.printTransaction(qtyDeposited);
+                } else if (qtyWithdrawn>0){
+                    System.out.println("===============================");
+                    System.out.print("Last transaction :\nYou withdrawn : ");
+                    prevTrans.printTransaction(qtyWithdrawn);
+                } else System.out.println("You have no transaction this session yet.\n");
+            }
+            else  if (clientChoice == 5){
+                notExit = true;
+                break;
+            }
+            else System.out.println("Something went wrong. Enter 1 thru 6");
+            }
+        }
+    }
+
+
+
+
